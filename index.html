@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختيار موقع مزيف من الخريطة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>اختر موقعًا من الخريطة لتفعيله كموقعك المزيف</h2>
+  <div id="map"></div>
+  <button onclick="spoofLocation()">تفعيل الموقع المختار</button>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let fakeLat = 24.7136;  // موقع افتراضي (الرياض)
+    let fakeLng = 46.6753;
+    let marker;
+
+    // إعداد الخريطة
+    const map = L.map('map').setView([fakeLat, fakeLng], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'OpenStreetMap'
+    }).addTo(map);
+
+    marker = L.marker([fakeLat, fakeLng]).addTo(map);
+
+    map.on('click', function(e) {
+      fakeLat = e.latlng.lat;
+      fakeLng = e.latlng.lng;
+      marker.setLatLng([fakeLat, fakeLng]);
+      alert(`تم اختيار الموقع: ${fakeLat.toFixed(5)}, ${fakeLng.toFixed(5)}`);
+    });
+
+    function spoofLocation() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition = function(success, error) {
+          success({
+            coords: {
+              latitude: fakeLat,
+              longitude: fakeLng,
+              accuracy: 100
+            }
+          });
+        };
+
+        navigator.geolocation.watchPosition = function(success, error) {
+          success({
+            coords: {
+              latitude: fakeLat,
+              longitude: fakeLng,
+              accuracy: 100
+            }
+          });
+        };
+
+        alert("تم تفعيل الموقع المزيف!");
+      } else {
+        alert("المتصفح لا يدعم تحديد الموقع");
+      }
+    }
+  </script>
+</body>
+</html>
